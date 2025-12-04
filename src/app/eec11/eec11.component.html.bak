@@ -1,0 +1,268 @@
+<div class="eec11-container">
+  <!-- Task Selector -->
+  <div class="task-selector">
+    <h3>Виберіть завдання:</h3>
+    <div class="task-buttons">
+      <button
+        class="task-button"
+        [class.active]="currentTask() === 'task1'"
+        (click)="selectTask('task1')"
+      >
+        Завдання 1
+      </button>
+      <button
+        class="task-button"
+        [class.active]="currentTask() === 'task2'"
+        (click)="selectTask('task2')"
+      >
+        Завдання 2
+      </button>
+      <button
+        class="task-button"
+        [class.active]="currentTask() === 'task3'"
+        (click)="selectTask('task3')"
+      >
+        Завдання 3
+      </button>
+    </div>
+  </div>
+
+  <!-- Task 1: Plate Selection -->
+  @if (currentTask() === 'task1') {
+    <div class="task-panel task1-panel">
+      <h4>Завдання 1: Вимірювання товщини пластинки</h4>
+      <p>Виберіть пластинку та виміряйте відстань між сигналами на екрані</p>
+      <div class="plate-selection">
+        <button
+          class="plate-button"
+          [class.selected]="selectedPlate() === 10"
+          (click)="selectPlate(10)"
+        >
+          10 мм
+        </button>
+        <button
+          class="plate-button"
+          [class.selected]="selectedPlate() === 5"
+          (click)="selectPlate(5)"
+        >
+          5 мм
+        </button>
+        <button
+          class="plate-button"
+          [class.selected]="selectedPlate() === 3"
+          (click)="selectPlate(3)"
+        >
+          3 мм
+        </button>
+        <button
+          class="plate-button"
+          [class.selected]="selectedPlate() === 2"
+          (click)="selectPlate(2)"
+        >
+          2 мм
+        </button>
+      </div>
+      <div class="task-info">
+        <p>Відстань від зонду: {{ plateDistance().toFixed(1) }} мм</p>
+        <p>Екран: шахматна дошка (1 квадратик = 1 см)</p>
+      </div>
+    </div>
+  }
+
+  <!-- Task 2: Object with Shape -->
+  @if (currentTask() === 'task2') {
+    <div class="task-panel task2-panel">
+      <h4>Завдання 2: Визначення форми об'єкта</h4>
+      <p>Обертайте об'єкт та виміряйте відстань між точками 1 і 2</p>
+      <div class="shape-info">
+        <p><strong>Форма об'єкта:</strong> {{ getShapeName(objectShape()) }}</p>
+        <p><strong>Відстань від зонду:</strong> {{ objectDistance() }} мм</p>
+      </div>
+      <div class="rotation-control">
+        <label>Кут повороту: {{ objectRotation() }}°</label>
+        <input
+          type="range"
+          min="0"
+          max="360"
+          [value]="objectRotation()"
+          (input)="onRotationChange($event)"
+          class="rotation-slider"
+        />
+      </div>
+      <div class="task-info">
+        <p>Виміряйте відстань між точками 1 і 2 при різних кутах повороту</p>
+      </div>
+    </div>
+  }
+
+  <!-- Task 3: Cylinder -->
+  @if (currentTask() === 'task3') {
+    <div class="task-panel task3-panel">
+      <h4>Завдання 3: Визначення матеріалу циліндра</h4>
+      <p>Виміряйте висоту сигналів та визначте матеріал</p>
+      <div class="cylinder-info">
+        <p><strong>Товщина циліндра:</strong> {{ cylinderThickness() }} мм</p>
+        <p><strong>Матеріал:</strong> <span class="hidden-material">???</span></p>
+        <p class="hint">(Матеріал буде визначено після вимірювання)</p>
+      </div>
+      <div class="task-info">
+        <p>Зонд розташований зверху циліндра (2D вигляд збоку)</p>
+        <p>Виміряйте висоту сигналів на екрані</p>
+      </div>
+    </div>
+  }
+
+  <div class="cart">
+    <div class="device">
+      <!-- Device Handle -->
+      <div class="handle"></div>
+
+      <!-- Ventilation Slits -->
+      <div class="ventilation"></div>
+
+      <!-- Main Panel -->
+      <div class="panel">
+        <!-- Left Side: Screen and Controls -->
+        <div class="left-section">
+          <!-- CRT Screen -->
+          <div class="screen-container">
+            <div class="screen-bezel">
+              <canvas #waveformCanvas class="screen" width="300" height="300"></canvas>
+            </div>
+            <div class="device-label">ЭХОЭНЦЕФАЛОСКОП ЭЭС-11</div>
+          </div>
+
+          <!-- Intensity Control (Підсилення) -->
+          <div class="control-group">
+            <label class="control-label">ПІДСИЛЕННЯ</label>
+            <div
+              class="knob-container"
+              (mousedown)="onKnobMouseDown($event, intensity, intensity())"
+              (touchstart)="onKnobTouchStart($event, intensity, intensity())"
+            >
+              <div class="knob" [style.transform]="'translate(-50%, -50%) rotate(' + (intensity() * 36 - 180) + 'deg)'">
+                <div class="knob-indicator"></div>
+              </div>
+              <div class="knob-value">{{ intensity() }}</div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Right Side: Controls -->
+        <div class="right-section">
+          <!-- Top Right: Brightness -->
+          <div class="control-group top-right">
+            <div class="indicator-light"></div>
+            <label class="control-label">ЯСКРАВІСТЬ</label>
+            <div
+              class="knob-container"
+              (mousedown)="onKnobMouseDown($event, brightness, brightness())"
+              (touchstart)="onKnobTouchStart($event, brightness, brightness())"
+            >
+              <div class="knob" [style.transform]="'translate(-50%, -50%) rotate(' + (brightness() * 36 - 180) + 'deg)'">
+                <div class="knob-indicator"></div>
+              </div>
+              <div class="knob-value">{{ brightness() }}</div>
+            </div>
+          </div>
+
+          <!-- Middle Right: Focus and Scale -->
+          <div class="control-group middle-right">
+            <div class="control-row">
+              <div class="control-item">
+                <label class="control-label">ФОКУС</label>
+                <div
+                  class="knob-container small"
+                  (mousedown)="onKnobMouseDown($event, focus, focus())"
+                  (touchstart)="onKnobTouchStart($event, focus, focus())"
+                >
+                  <div class="knob small-knob" [style.transform]="'translate(-50%, -50%) rotate(' + (focus() * 36 - 180) + 'deg)'">
+                    <div class="knob-indicator"></div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="control-item">
+                <label class="control-label">МАСШТАБ</label>
+                <div
+                  class="knob-container"
+                  (mousedown)="onKnobMouseDown($event, scale, scale())"
+                  (touchstart)="onKnobTouchStart($event, scale, scale())"
+                >
+                  <div class="knob" [style.transform]="'translate(-50%, -50%) rotate(' + (scale() * 36 - 180) + 'deg)'">
+                    <div class="knob-indicator"></div>
+                  </div>
+                  <div class="knob-value">{{ scale() }}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Upper Middle: Display and Power -->
+          <div class="control-group upper-middle">
+            <div class="display-panel">
+              <div class="display-text">{{ measurement() }}</div>
+              <div class="display-text">{{ speed() }}м/с</div>
+              <div class="distance-control">
+                <label class="control-label">ВИМІРЮВАННЯ</label>
+                <div class="measurement-controls">
+                  <div
+                    class="knob-container"
+                    (mousedown)="onKnobMouseDown($event, measuredDistance, measuredDistance(), 0, 200)"
+                    (touchstart)="onKnobTouchStart($event, measuredDistance, measuredDistance(), 0, 200)"
+                  >
+                    <div class="knob" [style.transform]="'translate(-50%, -50%) rotate(' + (measuredDistance() / 200 * 360 - 180) + 'deg)'">
+                      <div class="knob-indicator"></div>
+                    </div>
+                    <div class="knob-value">{{ measuredDistance() }}мм</div>
+                  </div>
+                  <div class="arrow-buttons-right">
+                    <button
+                      class="measurement-arrow-btn right"
+                      (click)="adjustMeasurement(1)"
+                      (mousedown)="startContinuousAdjust(1)"
+                      (mouseup)="stopContinuousAdjust()"
+                      (mouseleave)="stopContinuousAdjust()"
+                      title="Збільшити на 1 мм"
+                    >
+                      ►
+                    </button>
+                    <button
+                      class="measurement-arrow-btn left"
+                      (click)="adjustMeasurement(-1)"
+                      (mousedown)="startContinuousAdjust(-1)"
+                      (mouseup)="stopContinuousAdjust()"
+                      (mouseleave)="stopContinuousAdjust()"
+                      title="Зменшити на 1 мм"
+                    >
+                      ◄
+                    </button>
+                  </div>
+                </div>
+              </div>
+              <!-- Small display for measured distance -->
+              <div class="distance-display">
+                <div class="distance-display-label">ВИМІР</div>
+                <div class="distance-display-value">{{ measuredDistance().toFixed(1) }} мм</div>
+              </div>
+            </div>
+            <div class="toggle-switch">
+              <label class="switch-label">ВИМК. - УВІМК.</label>
+              <button
+                class="toggle-button"
+                [class.active]="isPowerOn()"
+                (click)="onPowerToggle()"
+              >
+                <span class="toggle-slider"></span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Cart Lower Shelf -->
+    <div class="cart-shelf"></div>
+  </div>
+</div>
