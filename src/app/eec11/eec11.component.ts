@@ -35,12 +35,9 @@ export class Eec11Component implements AfterViewInit, OnDestroy {
   // Control values
   intensity = signal(5);
   brightness = signal(5);
-  focus = signal(5);
   scale = signal(5);
-  limitation = signal(5);
   startPosition = signal(0); // 0-150mm, start position of visible range
   isPowerOn = signal(false);
-  isVaryMode = signal(false);
   
   // Task 1: Plate selection
   selectedPlate = signal<PlateWidth | null>(null);
@@ -89,13 +86,6 @@ export class Eec11Component implements AfterViewInit, OnDestroy {
   private mouseUpHandler = this.handleMouseUp.bind(this);
   private touchMoveHandler = this.handleTouchMove.bind(this);
   private touchEndHandler = this.handleTouchEnd.bind(this);
-
-  // Material properties (speed of sound in m/s)
-  private materialSpeeds: Record<Material, number> = {
-    aluminum: 6320,
-    polymer: 2400,
-    steel: 5900
-  };
 
   constructor() {
     // Initialize random shape and material for tasks
@@ -889,10 +879,6 @@ export class Eec11Component implements AfterViewInit, OnDestroy {
     } else {
       this.startPosition.set(0);
     }
-  }
-
-  onVaryToggle() {
-    this.isVaryMode.update(value => !value);
   }
 
   onRotationChange(event: Event) {
