@@ -1272,49 +1272,67 @@ export class Eec11Component implements AfterViewInit, OnDestroy {
   ) {
     const speed = 0.4; // Швидкість руху хвиль
     const probeRight = leftX + 20;
-    const plateFront = plateLeftX; // Передня поверхня (ліва)
-    const plateBack = plateLeftX + plateThickness; // Задня поверхня (права)
+    const plateFront = plateLeftX; // Передня поверхня (ліва, зелена)
+    const plateBack = plateLeftX + plateThickness; // Задня поверхня (права, помаранчева)
     const totalDistance = distance * scale;
     
-    // Хвиля, що йде від зонда до передньої поверхні пластинки (перша відбита)
-    const wave1Progress = (this.waveAnimationTime * speed) % 3;
-    if (wave1Progress < 1) {
-      const wave1X = probeRight + wave1Progress * totalDistance;
-      if (wave1X <= plateFront) {
-        this.drawWave(ctx, wave1X, centerY, '#0096ff', 0.7);
+    const cycleTime = 4; // Повний цикл
+    const currentTime = (this.waveAnimationTime * speed) % cycleTime;
+    
+    // ХВИЛЯ 1: Відбивається від ЗЕЛЕНОЇ поверхні (передньої)
+    // 1.1. Хвиля йде від зонда до зеленої поверхні
+    if (currentTime < 1) {
+      const waveX = probeRight + currentTime * totalDistance;
+      if (waveX <= plateFront) {
+        this.drawWave(ctx, waveX, centerY, '#0096ff', 0.8);
       }
     }
     
-    // Хвиля, відбита від передньої поверхні (повертається до зонда) - ПЕРШИЙ СИГНАЛ
-    if (wave1Progress >= 1 && wave1Progress < 2) {
-      const reflectedX = plateFront - (wave1Progress - 1) * totalDistance;
+    // 1.2. Хвиля відбивається від зеленої поверхні і повертається до зонда - ПЕРШИЙ СИГНАЛ
+    if (currentTime >= 1 && currentTime < 2) {
+      const reflectedX = plateFront - (currentTime - 1) * totalDistance;
       if (reflectedX >= probeRight) {
-        this.drawWave(ctx, reflectedX, centerY, '#00d4ff', 0.6);
+        // Зелена хвиля, що відбивається від зеленої поверхні
+        this.drawWave(ctx, reflectedX, centerY, '#00ff00', 0.8);
       }
     }
     
-    // Хвиля, що проходить через пластинку (від передньої до задньої поверхні)
-    const wave2Progress = ((this.waveAnimationTime * speed) - 1) % 3;
-    if (wave2Progress >= 0 && wave2Progress < 0.4) {
-      const wave2X = plateFront + (wave2Progress / 0.4) * plateThickness;
-      if (wave2X <= plateBack) {
-        this.drawWave(ctx, wave2X, centerY, '#0066cc', 0.5);
+    // ХВИЛЯ 2: Відбивається від ПОМАРАНЧЕВОЇ поверхні (задньої)
+    // 2.1. Хвиля йде від зонда до зеленої поверхні (одночасно з хвилею 1)
+    const wave2Time = currentTime; // Починається одночасно
+    if (wave2Time < 1) {
+      const waveX = probeRight + wave2Time * totalDistance;
+      if (waveX <= plateFront) {
+        // Ця хвиля буде проходити далі, тому інший колір
+        this.drawWave(ctx, waveX, centerY, '#0066cc', 0.6);
       }
     }
     
-    // Хвиля, відбита від задньої поверхні (повертається через пластинку до передньої) - ДРУГИЙ СИГНАЛ
-    if (wave2Progress >= 0.4 && wave2Progress < 0.8) {
-      const wave3X = plateBack - ((wave2Progress - 0.4) / 0.4) * plateThickness;
-      if (wave3X >= plateFront) {
-        this.drawWave(ctx, wave3X, centerY, '#ff6600', 0.6); // Помаранчева для другого сигналу
+    // 2.2. Хвиля проходить через пластинку (від зеленої до помаранчевої поверхні)
+    if (wave2Time >= 1 && wave2Time < 1.5) {
+      const progress = (wave2Time - 1) / 0.5;
+      const waveX = plateFront + progress * plateThickness;
+      if (waveX <= plateBack) {
+        this.drawWave(ctx, waveX, centerY, '#0066cc', 0.6);
       }
     }
     
-    // Хвиля, що виходить з передньої поверхні пластинки та повертається до зонда - ДРУГИЙ ВІДБИТИЙ СИГНАЛ
-    if (wave2Progress >= 0.8 && wave2Progress < 1.8) {
-      const wave4X = plateFront - (wave2Progress - 0.8) * totalDistance;
-      if (wave4X >= probeRight) {
-        this.drawWave(ctx, wave4X, centerY, '#ff8800', 0.5); // Помаранчева, що повертається
+    // 2.3. Хвиля відбивається від помаранчевої поверхні (повертається через пластинку до зеленої)
+    if (wave2Time >= 1.5 && wave2Time < 2) {
+      const progress = (wave2Time - 1.5) / 0.5;
+      const waveX = plateBack - progress * plateThickness;
+      if (waveX >= plateFront) {
+        // Помаранчева хвиля, що відбивається від помаранчевої поверхні
+        this.drawWave(ctx, waveX, centerY, '#ff6600', 0.8);
+      }
+    }
+    
+    // 2.4. Хвиля виходить з зеленої поверхні і повертається до зонда - ДРУГИЙ СИГНАЛ
+    if (wave2Time >= 2 && wave2Time < 3) {
+      const waveX = plateFront - (wave2Time - 2) * totalDistance;
+      if (waveX >= probeRight) {
+        // Помаранчева хвиля, що повертається від зеленої поверхні
+        this.drawWave(ctx, waveX, centerY, '#ff8800', 0.7);
       }
     }
     
