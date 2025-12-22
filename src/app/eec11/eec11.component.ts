@@ -1135,22 +1135,8 @@ export class Eec11Component implements AfterViewInit, OnDestroy {
     const centerY = canvas.height / 2;
     const leftX = 50; // Позиція зонда зліва
     
-    // Малюємо зонд (ультразвуковий датчик) - вертикально зліва
-    ctx.fillStyle = '#444';
-    ctx.fillRect(leftX, centerY - 30, 20, 60);
-    ctx.strokeStyle = '#222';
-    ctx.lineWidth = 2;
-    ctx.strokeRect(leftX, centerY - 30, 20, 60);
-    
-    // Підпис зонда
-    ctx.fillStyle = '#333';
-    ctx.font = '12px Arial';
-    ctx.textAlign = 'center';
-    ctx.save();
-    ctx.translate(leftX - 15, centerY);
-    ctx.rotate(-Math.PI / 2);
-    ctx.fillText('Зонд', 0, 0);
-    ctx.restore();
+    // Малюємо реалістичний зонд (ультразвуковий датчик) - вертикально зліва
+    this.drawRealisticProbeVertical(ctx, leftX, centerY);
     
     // Відстань від зонда до пластинки (горизонтальна лінія)
     const plateLeftX = leftX + 20 + distance * scale;
@@ -1417,22 +1403,8 @@ export class Eec11Component implements AfterViewInit, OnDestroy {
     const centerY = canvas.height / 2;
     const probeX = 50; // Позиція зонда зліва
     
-    // Малюємо зонд (ультразвуковий датчик)
-    ctx.fillStyle = '#444';
-    ctx.fillRect(probeX, centerY - 30, 20, 60);
-    ctx.strokeStyle = '#222';
-    ctx.lineWidth = 2;
-    ctx.strokeRect(probeX, centerY - 30, 20, 60);
-    
-    // Підпис зонда
-    ctx.fillStyle = '#333';
-    ctx.font = '12px Arial';
-    ctx.textAlign = 'center';
-    ctx.save();
-    ctx.translate(probeX - 15, centerY);
-    ctx.rotate(-Math.PI / 2);
-    ctx.fillText('Зонд', 0, 0);
-    ctx.restore();
+    // Малюємо реалістичний зонд (ультразвуковий датчик)
+    this.drawRealisticProbeVertical(ctx, probeX, centerY);
     
     // Відстань від зонда до об'єкта
     const objectX = probeX + 20 + distance * scale;
@@ -1575,18 +1547,8 @@ export class Eec11Component implements AfterViewInit, OnDestroy {
     const centerX = canvas.width / 2;
     const probeY = 50; // Позиція зонда зверху
     
-    // Малюємо зонд (ультразвуковий датчик) - горизонтально зверху
-    ctx.fillStyle = '#444';
-    ctx.fillRect(centerX - 30, probeY, 60, 20);
-    ctx.strokeStyle = '#222';
-    ctx.lineWidth = 2;
-    ctx.strokeRect(centerX - 30, probeY, 60, 20);
-    
-    // Підпис зонда
-    ctx.fillStyle = '#333';
-    ctx.font = '12px Arial';
-    ctx.textAlign = 'center';
-    ctx.fillText('Зонд', centerX, probeY - 10);
+    // Малюємо реалістичний зонд (ультразвуковий датчик) - горизонтально зверху
+    this.drawRealisticProbeHorizontal(ctx, centerX, probeY);
     
     // Відстань від зонда до циліндра
     const cylinderTop = probeY + 20 + 25 * scale; // 25 мм відстань
@@ -1742,5 +1704,195 @@ export class Eec11Component implements AfterViewInit, OnDestroy {
     ctx.beginPath();
     ctx.arc(x, y, baseRadius * 0.6, 0, Math.PI * 2);
     ctx.stroke();
+  }
+  
+  // Метод для малювання реалістичного зонда (вертикальна орієнтація)
+  drawRealisticProbeVertical(ctx: CanvasRenderingContext2D, x: number, y: number) {
+    const probeWidth = 24;
+    const probeHeight = 70;
+    const probeX = x;
+    const probeY = y - probeHeight / 2;
+    
+    // Тінь зонда
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.15)';
+    ctx.fillRect(probeX + 3, probeY + 3, probeWidth, probeHeight);
+    
+    // Основний корпус зонда (градієнт для об'єму)
+    const bodyGradient = ctx.createLinearGradient(probeX, probeY, probeX + probeWidth, probeY);
+    bodyGradient.addColorStop(0, '#2a2a2a');
+    bodyGradient.addColorStop(0.3, '#3a3a3a');
+    bodyGradient.addColorStop(0.7, '#3a3a3a');
+    bodyGradient.addColorStop(1, '#2a2a2a');
+    ctx.fillStyle = bodyGradient;
+    ctx.fillRect(probeX, probeY, probeWidth, probeHeight);
+    
+    // Округлені кути (верх)
+    ctx.fillStyle = bodyGradient;
+    ctx.beginPath();
+    ctx.arc(probeX + probeWidth / 2, probeY, probeWidth / 2, Math.PI, 0, false);
+    ctx.fill();
+    
+    // Округлені кути (низ)
+    ctx.beginPath();
+    ctx.arc(probeX + probeWidth / 2, probeY + probeHeight, probeWidth / 2, 0, Math.PI, false);
+    ctx.fill();
+    
+    // Контур зонда
+    ctx.strokeStyle = '#1a1a1a';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(probeX, probeY, probeWidth, probeHeight);
+    
+    // Округлені кути (контур)
+    ctx.beginPath();
+    ctx.arc(probeX + probeWidth / 2, probeY, probeWidth / 2, Math.PI, 0, false);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.arc(probeX + probeWidth / 2, probeY + probeHeight, probeWidth / 2, 0, Math.PI, false);
+    ctx.stroke();
+    
+    // Активна поверхня (датчик) - темна з металевим відблиском
+    const sensorY = probeY + probeHeight - 12;
+    const sensorGradient = ctx.createLinearGradient(probeX, sensorY, probeX, sensorY + 12);
+    sensorGradient.addColorStop(0, '#0a0a0a');
+    sensorGradient.addColorStop(0.5, '#1a1a1a');
+    sensorGradient.addColorStop(1, '#0a0a0a');
+    ctx.fillStyle = sensorGradient;
+    ctx.fillRect(probeX + 2, sensorY, probeWidth - 4, 12);
+    
+    // Відблиск на датчику
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
+    ctx.fillRect(probeX + 3, sensorY + 1, probeWidth - 6, 4);
+    
+    // Контур датчика
+    ctx.strokeStyle = '#000000';
+    ctx.lineWidth = 1;
+    ctx.strokeRect(probeX + 2, sensorY, probeWidth - 4, 12);
+    
+    // Верхня частина зонда (ручка/корпус)
+    const handleGradient = ctx.createLinearGradient(probeX, probeY, probeX, probeY + 20);
+    handleGradient.addColorStop(0, '#4a4a4a');
+    handleGradient.addColorStop(1, '#3a3a3a');
+    ctx.fillStyle = handleGradient;
+    ctx.fillRect(probeX + 3, probeY + 5, probeWidth - 6, 15);
+    
+    // Відблиск на корпусі
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.08)';
+    ctx.fillRect(probeX + 4, probeY + 6, probeWidth - 8, 8);
+    
+    // Лінії на корпусі для реалізму
+    ctx.strokeStyle = '#2a2a2a';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(probeX + 6, probeY + 25);
+    ctx.lineTo(probeX + probeWidth - 6, probeY + 25);
+    ctx.stroke();
+    
+    ctx.beginPath();
+    ctx.moveTo(probeX + 6, probeY + 35);
+    ctx.lineTo(probeX + probeWidth - 6, probeY + 35);
+    ctx.stroke();
+    
+    // Підпис зонда
+    ctx.fillStyle = '#555';
+    ctx.font = 'bold 10px Arial';
+    ctx.textAlign = 'center';
+    ctx.save();
+    ctx.translate(probeX - 18, y);
+    ctx.rotate(-Math.PI / 2);
+    ctx.fillText('ЗОНД', 0, 0);
+    ctx.restore();
+  }
+  
+  // Метод для малювання реалістичного зонда (горизонтальна орієнтація)
+  drawRealisticProbeHorizontal(ctx: CanvasRenderingContext2D, x: number, y: number) {
+    const probeWidth = 70;
+    const probeHeight = 24;
+    const probeX = x - probeWidth / 2;
+    const probeY = y;
+    
+    // Тінь зонда
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.15)';
+    ctx.fillRect(probeX + 3, probeY + 3, probeWidth, probeHeight);
+    
+    // Основний корпус зонда (градієнт для об'єму)
+    const bodyGradient = ctx.createLinearGradient(probeX, probeY, probeX, probeY + probeHeight);
+    bodyGradient.addColorStop(0, '#2a2a2a');
+    bodyGradient.addColorStop(0.3, '#3a3a3a');
+    bodyGradient.addColorStop(0.7, '#3a3a3a');
+    bodyGradient.addColorStop(1, '#2a2a2a');
+    ctx.fillStyle = bodyGradient;
+    ctx.fillRect(probeX, probeY, probeWidth, probeHeight);
+    
+    // Округлені кути (ліво)
+    ctx.fillStyle = bodyGradient;
+    ctx.beginPath();
+    ctx.arc(probeX, probeY + probeHeight / 2, probeHeight / 2, Math.PI / 2, 3 * Math.PI / 2, false);
+    ctx.fill();
+    
+    // Округлені кути (право)
+    ctx.beginPath();
+    ctx.arc(probeX + probeWidth, probeY + probeHeight / 2, probeHeight / 2, 3 * Math.PI / 2, Math.PI / 2, false);
+    ctx.fill();
+    
+    // Контур зонда
+    ctx.strokeStyle = '#1a1a1a';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(probeX, probeY, probeWidth, probeHeight);
+    
+    // Округлені кути (контур)
+    ctx.beginPath();
+    ctx.arc(probeX, probeY + probeHeight / 2, probeHeight / 2, Math.PI / 2, 3 * Math.PI / 2, false);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.arc(probeX + probeWidth, probeY + probeHeight / 2, probeHeight / 2, 3 * Math.PI / 2, Math.PI / 2, false);
+    ctx.stroke();
+    
+    // Активна поверхня (датчик) - темна з металевим відблиском
+    const sensorX = probeX + probeWidth - 12;
+    const sensorGradient = ctx.createLinearGradient(sensorX, probeY, sensorX + 12, probeY);
+    sensorGradient.addColorStop(0, '#0a0a0a');
+    sensorGradient.addColorStop(0.5, '#1a1a1a');
+    sensorGradient.addColorStop(1, '#0a0a0a');
+    ctx.fillStyle = sensorGradient;
+    ctx.fillRect(sensorX, probeY + 2, 12, probeHeight - 4);
+    
+    // Відблиск на датчику
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
+    ctx.fillRect(sensorX + 1, probeY + 3, 4, probeHeight - 6);
+    
+    // Контур датчика
+    ctx.strokeStyle = '#000000';
+    ctx.lineWidth = 1;
+    ctx.strokeRect(sensorX, probeY + 2, 12, probeHeight - 4);
+    
+    // Ліва частина зонда (ручка/корпус)
+    const handleGradient = ctx.createLinearGradient(probeX, probeY, probeX + 20, probeY);
+    handleGradient.addColorStop(0, '#4a4a4a');
+    handleGradient.addColorStop(1, '#3a3a3a');
+    ctx.fillStyle = handleGradient;
+    ctx.fillRect(probeX + 5, probeY + 3, 15, probeHeight - 6);
+    
+    // Відблиск на корпусі
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.08)';
+    ctx.fillRect(probeX + 6, probeY + 4, 8, probeHeight - 8);
+    
+    // Лінії на корпусі для реалізму
+    ctx.strokeStyle = '#2a2a2a';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(probeX + 25, probeY + 6);
+    ctx.lineTo(probeX + 25, probeY + probeHeight - 6);
+    ctx.stroke();
+    
+    ctx.beginPath();
+    ctx.moveTo(probeX + 35, probeY + 6);
+    ctx.lineTo(probeX + 35, probeY + probeHeight - 6);
+    ctx.stroke();
+    
+    // Підпис зонда
+    ctx.fillStyle = '#555';
+    ctx.font = 'bold 10px Arial';
+    ctx.textAlign = 'center';
+    ctx.fillText('ЗОНД', x, probeY - 8);
   }
 }
