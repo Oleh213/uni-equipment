@@ -41,7 +41,7 @@ export class Eec11Component implements AfterViewInit, OnDestroy {
   
   // Task 1: Plate selection
   selectedPlate = signal<PlateWidth | null>(null);
-  plateDistance = signal<number>(35); // 30-40 mm
+  plateDistance = signal<number>(40); // Fixed at 40 mm
   
   // Task 2: Object with shape
   objectShape = signal<Shape>('circle');
@@ -53,7 +53,6 @@ export class Eec11Component implements AfterViewInit, OnDestroy {
   cylinderThickness = signal(50); // mm
   
   // Display values
-  speed = signal(1500); // m/s (constant)
   measurement = signal('MM');
   measuredDistance = signal(0); // mm - для вимірювання відстані між сигналами
   displayDistance = signal(0); // mm - відображається на маленькому екранчику
@@ -188,8 +187,8 @@ export class Eec11Component implements AfterViewInit, OnDestroy {
     const materials: Material[] = ['aluminum', 'polymer', 'steel'];
     this.cylinderMaterial.set(materials[Math.floor(Math.random() * materials.length)]);
     
-    // Random plate distance for task 1 (30-40 mm)
-    this.plateDistance.set(30 + Math.random() * 10);
+    // Fixed plate distance for task 1 (40 mm)
+    this.plateDistance.set(40);
   }
 
   selectTask(task: TaskMode) {
@@ -387,10 +386,10 @@ export class Eec11Component implements AfterViewInit, OnDestroy {
         value += Math.exp(-Math.pow(normalizedDist1, power)) * (intensity / 10) * 0.6;
       }
       
-      // Add second signal with smooth curve
+      // Add second signal with smooth curve (slightly weaker than first)
       if (dist2 < signalWidth * 4) {
         const normalizedDist2 = dist2 / signalWidth;
-        value += Math.exp(-Math.pow(normalizedDist2, power)) * (intensity / 10) * 0.6;
+        value += Math.exp(-Math.pow(normalizedDist2, power)) * (intensity / 10) * 0.6 * 0.75; // 75% of first signal amplitude
       }
       
       // Add very minimal, smooth noise only to baseline (away from signals)
